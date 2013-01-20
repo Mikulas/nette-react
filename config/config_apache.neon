@@ -1,0 +1,4 @@
+
+services:
+	routerFactory: App\RouterFactory
+	router: @routerFactory::createRouter
