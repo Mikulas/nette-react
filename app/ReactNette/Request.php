@@ -12,7 +12,7 @@ class Request extends \Nette\Object implements \Nette\Http\IRequest
 	protected $req;
 
 	/** @var mixed[] */
-	protected $post;
+	protected $post = [];
 
 
 
@@ -31,6 +31,12 @@ class Request extends \Nette\Object implements \Nette\Http\IRequest
 		return $this->req->getQuery($key, $default);
 	}
 
+	public function setPostData($post)
+	{
+		$this->post = [];
+		parse_str($post, $this->post);
+	}
+
 	public function getPostData()
 	{
 		// @TODO check if POST else NULL
@@ -39,11 +45,6 @@ class Request extends \Nette\Object implements \Nette\Http\IRequest
 
 	public function getPost($key = NULL, $default = NULL)
 	{
-		if ($this->post === NULL) {
-			$this->post = [];
-			parse_str($this->req->postData, $this->post);
-		}
-
 		if (func_num_args() === 0) {
 			return $this->post;
 

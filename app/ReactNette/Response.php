@@ -118,4 +118,9 @@ class Response extends \Nette\Object implements \Nette\Http\IResponse
 		
 	}
 
+	public function removeDuplicateCookies()
+	{
+		// @TODO implement
+	}
+
 }

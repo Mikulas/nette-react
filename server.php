@@ -21,10 +21,9 @@ $socket = new React\Socket\Server($loop);
 $http = new React\Http\Server($socket, $loop);
 
 $http->on('request', function ($req, $res) use ($container) {
-	$req->postData = NULL;
 	if ($req->getMethod() === 'POST') {
 		$req->on('data', function($data) use ($container, $req, $res) {
-			$req->postData = $data;
+			$container->httpRequest->setPostData($data);
 			runApplication($container, $req, $res);
 		});
 
