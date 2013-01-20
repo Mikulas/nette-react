@@ -1,0 +1,9 @@
+
+parameters:
+	server:
+		port: 1337
+
+services:
+	application: \ReactNette\Application\Application
+	routerFactory: App\RouterFactory
+	router: @routerFactory::createRouter

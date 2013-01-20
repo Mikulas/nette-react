@@ -1,0 +1,7 @@
+{
+    "require": {
+        "php" : ">=5.4.0",
+        "nette/nette": "2.1.*@dev",
+        "react/react": "0.2.*"
+    }
+}
