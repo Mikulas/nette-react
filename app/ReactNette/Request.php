@@ -2,7 +2,7 @@
 
 namespace ReactNette\Http;
 
-use Nette\Http\UrlScript;
+use ReactNette\Http\UrlScript;
 
 
 class Request extends \Nette\Object implements \Nette\Http\IRequest
@@ -11,16 +11,19 @@ class Request extends \Nette\Object implements \Nette\Http\IRequest
 	/** @var \React\Http\Request */
 	protected $req;
 
+	/** @var mixed[] */
+	protected $post;
 
 
-	public function __construct(\React\Http\Request $request)
+
+	public function setRequest(\React\Http\Request $request)
 	{
 		$this->req = $request;
 	}
 
 	public function getUrl()
 	{
-		return new Url($this->req);
+		return new UrlScript($this->req);
 	}
 
 	public function getQuery($key = NULL, $default = NULL)
@@ -28,39 +31,60 @@ class Request extends \Nette\Object implements \Nette\Http\IRequest
 		return $this->req->getQuery($key, $default);
 	}
 
+	public function getPostData()
+	{
+		// @TODO check if POST else NULL
+		return $this->req->postData;
+	}
+
 	public function getPost($key = NULL, $default = NULL)
 	{
-		return []; // @TODO implement
+		if ($this->post === NULL) {
+			$this->post = [];
+			parse_str($this->req->postData, $this->post);
+		}
+
+		if (func_num_args() === 0) {
+			return $this->post;
+
+		} elseif (isset($this->post[$key])) {
+			return $this->post[$key];
+
+		} else {
+			return $default;
+		}
 	}
 
 	public function getFile($key)
 	{
-		
+		// @TODO implement
 	}
 
 	public function getFiles()
 	{
-		return []; // @TODO implement
+		// @TODO implement
+		return [];
 	}
 
 	public function getCookie($key, $default = NULL)
 	{
-		
+
+		// @TODO implement
 	}
 
 	public function getCookies()
 	{
-		
+		// @TODO implement
 	}
 
 	public function getMethod()
 	{
-		return $this->req->getMethod();
+		return strToLower($this->req->getMethod());
 	}
 
 	public function isMethod($method)
 	{
-		return strToLower($this->getMethod()) === strToLower($method);
+		return $this->getMethod() === strToLower($method);
 	}
 
 	public function getHeader($header, $default = NULL)

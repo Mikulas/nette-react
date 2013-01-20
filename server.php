@@ -20,15 +20,16 @@ $loop = React\EventLoop\Factory::create();
 $socket = new React\Socket\Server($loop);
 $http = new React\Http\Server($socket, $loop);
 
-$http->on('request', function ($req, $res) use ($container, $loop) {
-    try {
-		$container->application->runAsync($req, $res, $loop);
-		//echo "\033[32m{$req->getPath()}\033[0m\n";
+$http->on('request', function ($req, $res) use ($container) {
+	$req->postData = NULL;
+	if ($req->getMethod() === 'POST') {
+		$req->on('data', function($data) use ($container, $req, $res) {
+			$req->postData = $data;
+			runApplication($container, $req, $res);
+		});
 
-	} catch (Exception $e) {
-		$res->writeHead(500, array('Content-Type' => 'text/plain'));
-		$res->end("Server error.");
-		echo "\033[1;31m{$req->getPath()}\033[0m - {$e->getMessage()}\n";
+	} else {
+		runApplication($container, $req, $res);
 	}
 
 	/*
@@ -41,3 +42,17 @@ $socket->listen($server->port);
 echo "Server running at http://127.0.0.1:{$server->port}\n";
 
 $loop->run();
+
+
+function runApplication($container, $req, $res)
+{
+	try {
+		$container->application->runAsync($req, $res);
+		//echo "\033[32m{$req->getPath()}\033[0m\n";
+
+	} catch (Exception $e) {
+		$res->writeHead(500, array('Content-Type' => 'text/plain'));
+		$res->end("Server error.");
+		echo "\033[1;31m{$req->getPath()}\033[0m - {$e->getMessage()}\n";
+	}
+}

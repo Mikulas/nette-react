@@ -7,3 +7,5 @@ services:
 	application: \ReactNette\Application\Application
 	routerFactory: App\RouterFactory
 	router: @routerFactory::createRouter
+	httpRequest: \ReactNette\Http\Request
+	httpResponse: \ReactNette\Http\Response

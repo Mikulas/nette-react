@@ -67,8 +67,10 @@ class Application extends Nette\Application\Application
 
 	public function runAsync($req, $res)
 	{
-		$this->httpRequest = new \ReactNette\Http\Request($req);
-		$this->httpResponse = new \ReactNette\Http\Response($res);
+		$this->httpRequest->setRequest($req);
+		$this->httpResponse->setResponse($res);
+		$this->requests = [];
+		$this->presenter = NULL;
 
 		$request = NULL;
 		$repeatedError = FALSE;
@@ -118,11 +120,23 @@ class Application extends Nette\Application\Application
 					continue;
 
 				} elseif ($response instanceof IResponse) {
+					if ($response instanceof \Nette\Application\Responses\RedirectResponse) {
+						$this->httpResponse->redirect($response->url, $response->code);
+					}
+
 					$headers = array_merge(['X-Powered-By' => 'Nette Framework', 'Content-Type' => 'text/html'], (array) $this->httpResponse->getHeaders());
+					dump($headers);
 					$res->writeHead($this->httpResponse->getCode(), $headers);
-					ob_start();
-					$response->send($this->httpRequest, $this->httpResponse);
-					$res->end(ob_get_clean());
+
+					if ($response instanceof \Nette\Application\Responses\RedirectResponse) {
+						$res->end();
+					} elseif ($response->source instanceof \Nette\Templating\ITemplate) {
+						ob_start();
+						$response->source->render();
+						$res->end(ob_get_clean());
+					} else {
+						$res->end($response->source);
+					}
 				}
 				break;
 
@@ -157,7 +171,6 @@ class Application extends Nette\Application\Application
 			}
 		} while (1);
 
-		$this->requests = [];
 		$this->onShutdown($this, isset($e) ? $e : NULL);
 	}
 
