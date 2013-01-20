@@ -57,7 +57,5 @@ class Url extends \Nette\Http\Url
 	{
 		throw new \Nette\NotSupportedException();
 	}
-	
-
 
 }
